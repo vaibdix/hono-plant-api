@@ -12,15 +12,14 @@ app.onError(errorHandler);
 
 async function startServer() {
     const db = await connectDB();
-    const plantsCollection = getCollection(db, "items");
-    const plantService = new PlantService(plantsCollection);
+
 
     // Routes
-    app.route("/plants", setupPlantRoutes(plantService));
+
 
     const port = process.env.PORT || 3000;
     console.log(`Server is running on http://localhost:${port}`);
-    
+
     serve({
         fetch: app.fetch,
         port,

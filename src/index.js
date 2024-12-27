@@ -8,6 +8,7 @@ import { PlantService } from "./services/plantService.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { rateLimit } from "./middleware/rateLimit.js";
 import { corsMiddleware } from "./middleware/cors.js";
+import { securityHeaders } from "./middleware/security.js";
 import { swaggerConfig } from "./config/swagger.js";
 
 const app = new Hono();
@@ -15,13 +16,16 @@ const app = new Hono();
 // Middleware
 app.use('*', cors(corsMiddleware));
 app.use('*', rateLimit(100, 60000)); // 100 requests per minute
+app.use('*', securityHeaders);
 app.onError(errorHandler);
 
-// Swagger documentation
-app.get('/swagger', swaggerUI({ url: '/swagger.json' }));
-app.get('/swagger.json', (c) => {
-  return c.json(swaggerConfig);
-});
+// Only enable Swagger in development
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/swagger', swaggerUI({ url: '/swagger.json' }));
+  app.get('/swagger.json', (c) => {
+    return c.json(swaggerConfig);
+  });
+}
 
 async function startServer() {
     const db = await connectDB();
@@ -32,8 +36,11 @@ async function startServer() {
     app.route("/plants", setupPlantRoutes(plantService));
 
     const port = process.env.PORT || 3000;
-    console.log(`Server is running on http://localhost:${port}`);
-    console.log(`API documentation available at http://localhost:${port}/swagger`);
+    
+    if (process.env.NODE_ENV !== 'production') {
+        console.log(`Server is running on http://localhost:${port}`);
+        console.log(`API documentation available at http://localhost:${port}/swagger`);
+    }
     
     serve({
         fetch: app.fetch,

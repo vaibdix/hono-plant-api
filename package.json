@@ -1,10 +1,11 @@
 {
-  "name": "hono-plant-api",
+  "name": "hono-mongo-crud",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

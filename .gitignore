@@ -43,11 +43,6 @@ pids
 coverage/
 .nyc_output/
 
-# Docker
-Dockerfile
-.dockerignore
-docker-compose*.yml
-
 # Misc
 .tmp/
 .temp/

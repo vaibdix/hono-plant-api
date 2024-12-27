@@ -39,6 +39,32 @@ app.post("/plants", async (c) => {
     }
 });
 
+app.put("/plants/:id", async (c) => {
+    try {
+        const id = c.req.param("id");
+        const updatedItem = await c.req.json();
+        const result = await collection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: updatedItem }
+        );
+        return c.json(result);
+    } catch (err) {
+        return c.json({ error: err.message }, 500);
+    }
+});
+
+app.delete("/plants/:id", async (c) => {
+    try {
+        const id = c.req.param("id");
+        const result = await collection.deleteOne({
+            _id: new ObjectId(id),
+        });
+        return c.json(result);
+    } catch (err) {
+        return c.json({ error: err.message }, 500);
+    }
+});
+
 // Connect to MongoDB and then start the server
 const port = 3000;
 connectDB().then(() => {

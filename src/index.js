@@ -4,7 +4,9 @@ import { swaggerUI } from '@hono/swagger-ui';
 import { cors } from 'hono/cors';
 import { connectDB, getCollection } from "./config/database.js";
 import { setupPlantRoutes } from "./routes/plantRoutes.js";
+import { setupUserRoutes } from "./routes/userRoutes.js";
 import { PlantService } from "./services/plantService.js";
+import { UserService } from "./services/userService.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { rateLimit } from "./middleware/rateLimit.js";
 import { corsMiddleware } from "./middleware/cors.js";
@@ -13,39 +15,50 @@ import { swaggerConfig } from "./config/swagger.js";
 
 const app = new Hono();
 
-// Middleware
+// Middleware - Apply CORS first
 app.use('*', cors(corsMiddleware));
-app.use('*', rateLimit(100, 60000)); // 100 requests per minute
+app.options('*', (c) => {
+  // Handle preflight requests
+  return c.json({}, 204);
+});
+
+// Other middleware
+app.use('*', rateLimit(100, 60000));
 app.use('*', securityHeaders);
 app.onError(errorHandler);
 
-// Only enable Swagger in development
-if (process.env.NODE_ENV !== 'production') {
-  app.get('/swagger', swaggerUI({ url: '/swagger.json' }));
-  app.get('/swagger.json', (c) => {
+// Swagger documentation
+app.get('/swagger', swaggerUI({ url: '/swagger.json' }));
+app.get('/swagger.json', (c) => {
     return c.json(swaggerConfig);
-  });
-}
+});
 
 async function startServer() {
-    const db = await connectDB();
-    const plantsCollection = getCollection(db, "items");
-    const plantService = new PlantService(plantsCollection);
+    try {
+        const db = await connectDB();
+        const plantsCollection = getCollection(db, "items");
+        const usersCollection = getCollection(db, "users");
 
-    // Routes
-    app.route("/plants", setupPlantRoutes(plantService));
+        const plantService = new PlantService(plantsCollection);
+        const userService = new UserService(usersCollection);
 
-    const port = process.env.PORT || 3000;
-    
-    if (process.env.NODE_ENV !== 'production') {
+        // Routes
+        app.route("/plants", setupPlantRoutes(plantService));
+        app.route("/users", setupUserRoutes(userService));
+
+        const port = process.env.PORT || 3000;
+
+        serve({
+            fetch: app.fetch,
+            port,
+        });
+
         console.log(`Server is running on http://localhost:${port}`);
         console.log(`API documentation available at http://localhost:${port}/swagger`);
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
     }
-    
-    serve({
-        fetch: app.fetch,
-        port,
-    });
 }
 
-startServer().catch(console.error);
+startServer();

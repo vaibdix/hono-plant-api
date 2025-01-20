@@ -12,11 +12,11 @@ export function setupPlantRoutes(plantService) {
     router.post("/", async (c) => {
         const newPlant = await c.req.json();
         const errors = validatePlant(newPlant);
-        
+
         if (errors.length > 0) {
             return c.json({ errors }, 400);
         }
-        
+
         const result = await plantService.createPlant(newPlant);
         return c.json(result, 201);
     });
@@ -25,11 +25,11 @@ export function setupPlantRoutes(plantService) {
         const id = c.req.param("id");
         const updatedPlant = await c.req.json();
         const errors = validatePlant(updatedPlant);
-        
+
         if (errors.length > 0) {
             return c.json({ errors }, 400);
         }
-        
+
         const result = await plantService.updatePlant(id, updatedPlant);
         return c.json(result);
     });

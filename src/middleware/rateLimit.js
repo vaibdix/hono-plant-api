@@ -14,7 +14,7 @@ export function rateLimit(requests = 100, windowMs = 60000) {
     });
 
     const requestData = store.get(ip) || { count: 0, timestamp: now };
-    
+
     if (requestData.timestamp < windowStart) {
       requestData.count = 0;
       requestData.timestamp = now;

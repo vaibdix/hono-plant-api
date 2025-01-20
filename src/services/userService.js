@@ -66,13 +66,19 @@ export class UserService {
         this.collection = collection;
     }
 
+    // async getAllUsers() {
+    //     const users = await this.collection.find({}).toArray();
+    //     return users.map(user => {
+    //         const { password, ...userWithoutPassword } = user;
+    //         return userWithoutPassword;
+    //     });
+    // }
+
     async getAllUsers() {
         const users = await this.collection.find({}).toArray();
-        return users.map(user => {
-            const { password, ...userWithoutPassword } = user;
-            return userWithoutPassword;
-        });
+        return users;  // Return the whole user object, including the password
     }
+
 
     async createUser(user) {
         // Check if email already exists

@@ -36,7 +36,7 @@ app.get('/swagger.json', (c) => {
 async function startServer() {
     try {
         const db = await connectDB();
-        const plantsCollection = getCollection(db, "items");
+        const plantsCollection = getCollection(db, "plants");
         const usersCollection = getCollection(db, "users");
 
         const plantService = new PlantService(plantsCollection);

@@ -9,6 +9,16 @@ export function setupPlantRoutes(plantService) {
         return c.json(plants);
     });
 
+    router.get("/:id", async (c) => {
+        try {
+            const id = c.req.param("id");
+            const plant = await plantService.getPlantById(id);
+            return c.json(plant);
+        } catch (error) {
+            return c.json({ error: error.message }, 404);
+        }
+    });
+
     router.post("/", async (c) => {
         const newPlant = await c.req.json();
         const errors = validatePlant(newPlant);

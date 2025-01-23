@@ -52,6 +52,47 @@ export const swaggerConfig = {
       },
     },
     '/plants/{id}': {
+      get: {
+        summary: 'Get a plant by ID',
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: {
+              type: 'string',
+            },
+            description: 'The ID of the plant to retrieve',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Plant found successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Plant',
+                },
+              },
+            },
+          },
+          '404': {
+            description: 'Plant not found',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    error: {
+                      type: 'string',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
       put: {
         summary: 'Update a plant',
         parameters: [

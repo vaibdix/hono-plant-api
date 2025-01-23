@@ -9,6 +9,14 @@ export class PlantService {
         return await this.collection.find({}).toArray();
     }
 
+    async getPlantById(id) {
+        const plant = await this.collection.findOne({ _id: new ObjectId(id) });
+        if (!plant) {
+            throw new Error('Plant not found');
+        }
+        return plant;
+    }
+
     async createPlant(plant) {
         const result = await this.collection.insertOne(plant);
         return { ...plant, _id: result.insertedId };

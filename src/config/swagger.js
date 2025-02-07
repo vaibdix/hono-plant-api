@@ -272,30 +272,70 @@ export const swaggerConfig = {
         type: 'object',
         properties: {
           _id: {
+            type: 'string'
+          },
+          username: {
             type: 'string',
+            minLength: 3
           },
           email: {
             type: 'string',
+            format: 'email'
           },
           password: {
             type: 'string',
+            minLength: 6
           },
-        },
+          role: {
+            type: 'string',
+            enum: ['admin', 'user']
+          },
+          contactNumber: {
+            type: 'string',
+            pattern: '^\+?[\d\s-]{10,}$'
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time'
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time'
+          }
+        }
       },
       UserInput: {
         type: 'object',
-        required: ['email', 'password'],
+        required: ['username', 'email', 'password'],
         properties: {
+          username: {
+            type: 'string',
+            minLength: 3,
+            description: 'User\'s username, minimum 3 characters'
+          },
           email: {
             type: 'string',
             format: 'email',
+            description: 'User\'s email address'
           },
           password: {
             type: 'string',
             minLength: 6,
+            description: 'User\'s password, minimum 6 characters'
           },
-        },
-      },
-    },
-  },
+          role: {
+            type: 'string',
+            enum: ['admin', 'user'],
+            default: 'user',
+            description: 'User\'s role in the system'
+          },
+          contactNumber: {
+            type: 'string',
+            pattern: '^\+?[\d\s-]{10,}$',
+            description: 'User\'s contact number with optional country code'
+          }
+        }
+      }
+    }
+  }
 }

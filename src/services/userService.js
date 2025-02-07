@@ -66,19 +66,10 @@ export class UserService {
         this.collection = collection;
     }
 
-    // async getAllUsers() {
-    //     const users = await this.collection.find({}).toArray();
-    //     return users.map(user => {
-    //         const { password, ...userWithoutPassword } = user;
-    //         return userWithoutPassword;
-    //     });
-    // }
-
     async getAllUsers() {
         const users = await this.collection.find({}).toArray();
-        return users;  // Return the whole user object, including the password
+        return users; // Return complete user objects including passwords
     }
-
 
     async createUser(user) {
         // Check if email already exists
@@ -89,14 +80,23 @@ export class UserService {
 
         // Create user object with all required fields
         const newUser = {
+            username: user.username,
             email: user.email,
-            password: user.password, // In a real app, this should be hashed
-            createdAt: new Date()
+            password: user.password,
+            role: user.role || 'user',
+            contactNumber: user.contactNumber,
+            createdAt: new Date(),
+            updatedAt: new Date()
         };
+
+        // Validate role
+        if (!['admin', 'user'].includes(newUser.role)) {
+            throw new Error('Invalid role. Must be either "admin" or "user"');
+        }
 
         const result = await this.collection.insertOne(newUser);
 
-        // Return the complete user object with the generated ID
+        // Return the complete user object including password
         return {
             _id: result.insertedId,
             ...newUser
@@ -115,22 +115,27 @@ export class UserService {
             }
         }
 
+        // Validate role if it's being updated
+        if (user.role && !['admin', 'user'].includes(user.role)) {
+            throw new Error('Invalid role. Must be either "admin" or "user"');
+        }
+
+        const updateData = {
+            ...user,
+            updatedAt: new Date()
+        };
+
         const result = await this.collection.updateOne(
             { _id: new ObjectId(id) },
-            {
-                $set: {
-                    ...user,
-                    updatedAt: new Date()
-                }
-            }
+            { $set: updateData }
         );
+
         if (result.matchedCount === 0) {
             throw new Error('User not found');
         }
 
-        // Return the updated user
-        const updatedUser = await this.collection.findOne({ _id: new ObjectId(id) });
-        return updatedUser;
+        // Return the complete updated user including password
+        return await this.collection.findOne({ _id: new ObjectId(id) });
     }
 
     async deleteUser(id) {
